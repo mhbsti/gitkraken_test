@@ -1,0 +1,33 @@
+version: '3'
+services:
+  bcredi-onboarding-postgres:
+    image: postgres
+    container_name: bcredi-onboarding-postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - "db-data:/var/lib/postgresql/data"
+
+  bcredi-onboarding-ruby:
+    build: .
+    image: bcredi-onboarding-ruby
+    # command: /bin/bash -c "while [ true ]; do sleep 10; done"
+    command: /app/bin/rails s -b 0.0.0.0
+    container_name: bcredi-onboarding-ruby
+    volumes:
+      - .:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - bcredi-onboarding-postgres
+    links:
+      - bcredi-onboarding-postgres
+    environment:
+      - NODE_ENV=development
+      - RAILS_ENV=development
+      - WEBPACKER_DEV_SERVER_HOST=0.0.0.0
+    stdin_open: true
+    tty: true
+
+volumes:
+  db-data:
